@@ -1,0 +1,5 @@
+.env
+__pycache__
+.cache
+src/Dev_Scripts
+data/user_json
