@@ -1,7 +1,8 @@
 {
-    "DEFAULT_JSON_PATH": "data/user_json",
-    "DEFAULT_TRACKS_PATH": "data/user_json/tracks.json",
-    "DEFAULT_TAGS_PATH": "data/user_json/tags.json",
-    "DEFAULT_TEMPLATES_PATH": "data/user_json/templates.json",
-    "DEFAULT_PLAYLISTS_PATH": "data/user_json/playlists.json"
-  }
+  "DEFAULT_BACKUP_PATH": "data/backup",
+  "DEFAULT_JSON_PATH": "data/user_json",
+  "DEFAULT_TRACKS_PATH": "data/user_json/tracks.json",
+  "DEFAULT_TAGS_PATH": "data/user_json/tags.json",
+  "DEFAULT_TEMPLATES_PATH": "data/user_json/templates.json",
+  "DEFAULT_PLAYLISTS_PATH": "data/user_json/playlists.json"
+}

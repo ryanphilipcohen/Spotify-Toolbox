@@ -1,124 +1,183 @@
-from Datatypes import *
-import CLI_Commands, Commands
+import copy
+
+import cli_commands
+
 
 def main():
-    print("Spotify Toolbox CLI v1.0")
+    """Runs the main loop, which takes in user input and executes commands in the command line interface."""
+    print("Spotify Toolbox CLI v1.0.1")
 
-    track_list = []
-    tag_list = []
-    template_list = []
-    playlist_list = []
+    current_track_list = []
+    current_tag_list = []
+    current_template_list = []
+    current_playlist_list = []
+
+    saved_tag_list = []
+    saved_template_list = []
+    saved_playlist_list = []
+
+    cli_commands.load_tracks_command("load tracks", current_track_list)
+    cli_commands.load_tags_command("load tags", current_tag_list)
+    cli_commands.load_templates_command("load templates", current_template_list)
+    cli_commands.load_playlists_command("load playlists", current_playlist_list)
+
+    saved_tag_list = copy.deepcopy(current_tag_list)
+    saved_template_list = copy.deepcopy(current_template_list)
+    saved_playlist_list = copy.deepcopy(current_playlist_list)
 
     while True:
         print()
-        command = input("Enter Command: ").strip().lower()
+        command = input("Enter Command: ").strip()
 
         # GENERAL COMMANDS
 
-        if command == "exit" or command == "quit" or command == "q":
-            CLI_Commands.exit_command()
+        if command in ("exit", "quit", "q"):
+            cli_commands.exit_command(
+                current_tag_list,
+                saved_tag_list,
+                current_template_list,
+                saved_template_list,
+                current_playlist_list,
+                saved_playlist_list,
+            )
             break
 
-        elif command == "help" or command == "commands":
-            CLI_Commands.help_command()
+        if command in ("help", "commands"):
+            cli_commands.help_command()
 
-        elif command == "load" or command == "l":
-            CLI_Commands.load_tracks_command("load tracks", track_list)
-            CLI_Commands.load_tags_command("load tags", tag_list)
-            CLI_Commands.load_templates_command("load templates", template_list)
-            CLI_Commands.load_playlists_command("load playlists", playlist_list)
+        elif command.startswith("backup"):
+            cli_commands.backup_command(
+                command,
+                current_track_list,
+                current_tag_list,
+                current_template_list,
+                current_playlist_list,
+            )
 
-        elif command == "save" or command == "s":
-            CLI_Commands.save_tags_command("save tags", tag_list)
-            CLI_Commands.save_templates_command("save templates", template_list)
-            CLI_Commands.save_playlists_command("save playlists", playlist_list)
+        elif command in ("load", "l"):
+            cli_commands.load_tracks_command("load tracks", current_track_list)
+            cli_commands.load_tags_command("load tags", current_tag_list)
+            cli_commands.load_templates_command("load templates", current_template_list)
+            cli_commands.load_playlists_command("load playlists", current_playlist_list)
+
+        elif command in ("save", "s"):
+            cli_commands.save_tags_command(
+                "save tags", current_tag_list, saved_tag_list
+            )
+            cli_commands.save_templates_command(
+                "save templates", current_template_list, saved_template_list
+            )
+            cli_commands.save_playlists_command(
+                "save playlists", current_playlist_list, saved_playlist_list
+            )
 
         # TRACK COMMANDS
 
         elif command == "fetch tracks":
-            CLI_Commands.fetch_tracks_command()
+            cli_commands.fetch_tracks_command()
 
         elif command.startswith("load tracks"):
-            CLI_Commands.load_tracks_command(command, track_list)
+            cli_commands.load_tracks_command(command, current_track_list)
 
-        elif command == "display tracks" or command == "print tracks":
-            CLI_Commands.display_tracks_command(track_list)
+        elif command == "display tracks":
+            cli_commands.display_tracks_command(current_track_list)
 
         # TAG COMMANDS
 
         elif command.startswith("load tags"):
-            CLI_Commands.load_tags_command(command, tag_list)
+            cli_commands.load_tags_command(command, current_tag_list)
 
         elif command.startswith("save tags"):
-            CLI_Commands.save_tags_command(command, tag_list)
+            cli_commands.save_tags_command(command, current_tag_list, saved_tag_list)
 
         elif command.startswith("create tag "):
-            CLI_Commands.create_tag_command(command, tag_list)
+            cli_commands.create_tag_command(command, current_tag_list)
 
         elif command.startswith("remove tag "):
-            CLI_Commands.remove_tag_command(command, tag_list) 
+            cli_commands.remove_tag_command(command, current_tag_list)
+
+        elif command == "remove tags":
+            cli_commands.remove_tags_command(current_tag_list)
 
         elif command.startswith("add to tag "):
-            CLI_Commands.add_to_tag_command(command, track_list, tag_list)
+            cli_commands.add_to_tag_command(
+                command, current_track_list, current_tag_list
+            )
 
         elif command.startswith("remove from tag "):
-            CLI_Commands.remove_from_tag_command(command, tag_list)
+            cli_commands.remove_from_tag_command(command, current_tag_list)
+
+        elif command.startswith("clear tag "):
+            cli_commands.clear_tag_command(command, current_tag_list)
 
         elif command.startswith("display tag "):
-            CLI_Commands.display_tag_command(command, tag_list)
-        
+            cli_commands.display_tag_command(command, current_tag_list)
+
         elif command.startswith("display tags"):
-            CLI_Commands.display_tags_command(tag_list)
+            cli_commands.display_tags_command(current_tag_list)
+
+        elif command.startswith("generate tags"):
+            cli_commands.generate_tags_command(
+                command, current_track_list, current_tag_list
+            )
 
         # TEMPLATE COMMANDS
 
         elif command.startswith("load templates"):
-            CLI_Commands.load_templates_command(command, template_list)
+            cli_commands.load_templates_command(command, current_template_list)
 
         elif command.startswith("save templates"):
-            CLI_Commands.save_templates_command(command, template_list)
+            cli_commands.save_templates_command(
+                command, current_template_list, saved_template_list
+            )
 
         elif command.startswith("create template "):
-            CLI_Commands.create_template_command(command, template_list)
+            cli_commands.create_template_command(command, current_template_list)
 
         elif command.startswith("remove template "):
-            CLI_Commands.remove_template_command(command, template_list)
+            cli_commands.remove_template_command(command, current_template_list)
 
         elif command.startswith("add to template "):
-            CLI_Commands.add_to_template_command(command, track_list, tag_list, template_list)
+            cli_commands.add_to_template_command(
+                command, current_track_list, current_tag_list, current_template_list
+            )
 
         elif command.startswith("remove from template "):
-            CLI_Commands.remove_from_template_command(command, template_list)
+            cli_commands.remove_from_template_command(command, current_template_list)
 
         elif command.startswith("display template "):
-            CLI_Commands.display_template_command(command, template_list)
-        
+            cli_commands.display_template_command(command, current_template_list)
+
         elif command.startswith("display templates"):
-            CLI_Commands.display_templates_command(template_list)
+            cli_commands.display_templates_command(current_template_list)
 
         # PLAYLIST COMMANDS
 
         elif command.startswith("load playlists"):
-            CLI_Commands.load_playlists_command(command, playlist_list)
+            cli_commands.load_playlists_command(command, current_playlist_list)
 
         elif command.startswith("save playlists"):
-            CLI_Commands.save_playlists_command(command, playlist_list)
+            cli_commands.save_playlists_command(
+                command, current_playlist_list, saved_playlist_list
+            )
 
         elif command.startswith("create playlists "):
-            CLI_Commands.create_playlist_command(command, playlist_list)
+            cli_commands.create_playlist_command(command, current_playlist_list)
 
         elif command.startswith("remove playlists "):
-            CLI_Commands.remove_playlist_command(command, playlist_list)
+            cli_commands.remove_playlist_command(command, current_playlist_list)
 
         elif command.startswith("generate playlist "):
-            CLI_Commands.generate_playlist_from_template_command(command, tag_list, template_list, playlist_list)
+            cli_commands.generate_playlist_from_template_command(
+                command, current_tag_list, current_template_list, current_playlist_list
+            )
 
         elif command.startswith("upload playlist "):
-            CLI_Commands.upload_playlist_command(command, playlist_list)
+            cli_commands.upload_playlist_command(command, current_playlist_list)
 
-        
         else:
             print("Unknown Command.")
+
 
 if __name__ == "__main__":
     main()
