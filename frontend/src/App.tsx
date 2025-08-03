@@ -6,7 +6,6 @@ import TestArea from "./components/TestArea";
 
 const Home = () => <div className="p-4">This is the Home page</div>;
 const Library = () => <div className="p-4">This is the Library</div>;
-
 const App: React.FC = () => {
   const [view, setView] = useState("Home");
 
