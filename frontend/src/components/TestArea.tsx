@@ -1,6 +1,6 @@
 import React from "react";
-import { getSavedTracks } from "../lib/apis/spotify";
 import { getTagsHierarchy } from "../lib/apis/web";
+import { syncTracks } from "../lib/apis/web";
 
 interface Props {}
 
@@ -9,11 +9,11 @@ const TestArea: React.FC<Props> = (props) => {
     <div className="flex flex-col">
       <button
         onClick={async () => {
-          const tracks = await getSavedTracks();
+          const tracks = await syncTracks();
           console.log(tracks);
         }}
       >
-        Log Tracks From Spotify
+        Sync Tracks
       </button>
       <button
         onClick={async () => {
