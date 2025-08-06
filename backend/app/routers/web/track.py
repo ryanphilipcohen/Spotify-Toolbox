@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Header, Body, HTTPException
+from fastapi import APIRouter, Header, Body, HTTPException, Query
 from backend.app.models.web.track import TrackIn, TrackOut
 from backend.database import get_connection
+from typing import Optional
 
 router = APIRouter()
 
@@ -55,33 +56,50 @@ def get_track(track: TrackIn):
 
 
 @router.get("/tracks")
-def get_tracks():
+def get_tracks(
+    start: Optional[int] = Query(None, ge=0),
+    end: Optional[int] = Query(None, ge=0),
+    sort_by: Optional[str] = Query(None, regex="^(added_at|name)$"),
+    order: Optional[str] = Query("desc", regex="^(asc|desc)$"),
+    user_id: int = Header(...),
+):
     conn = get_connection()
     cursor = conn.cursor()
 
-    cursor.execute(
-        "SELECT id, user_id, track_index, name, image, spotify_id FROM track"
-    )
-    track_data = cursor.fetchone()
+    # Base query
+    query = """
+        SELECT id, user_id, added_at, name, image, spotify_id"""
+    query += " FROM track WHERE user_id = ?"
+    params = [user_id]
 
-    conn.commit()
+    # Add sorting
+    if sort_by:
+        query += f" ORDER BY {sort_by} {order.upper()}"  # type: ignore
+
+    cursor.execute(query, params)
+    all_data = cursor.fetchall()
+
+    # Bounds checking
+    total_len = len(all_data)
+    if start is None:
+        start = 0
+    if end is None or end > total_len:
+        end = total_len
+
+    sliced_data = all_data[start:end]
+
     conn.close()
 
-    return (
-        [
-            TrackOut(
-                user_id=row[1],
-                added_at=row[2],
-                name=row[3],
-                image=row[4],
-                spotify_id=row[5],
-            )
-            for row in track_data
-            if row is not None
-        ]
-        if track_data
-        else []
-    )
+    return [
+        TrackOut(
+            user_id=row[1],
+            added_at=row[2],
+            name=row[3],
+            image=row[4],
+            spotify_id=row[5],
+        )
+        for row in sliced_data
+    ]
 
 
 @router.post("/sync-tracks")

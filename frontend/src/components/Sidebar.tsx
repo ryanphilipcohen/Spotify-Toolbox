@@ -2,12 +2,10 @@ import React from "react";
 import { UserInfo } from "./UserInfo";
 
 interface SidebarProps {
-  setView: (view: string) => void;
+  setSidebarView: (view: string) => void;
 }
 
-const sidebarItems = ["Home", "Library", "Testing Area"];
-
-const Sidebar: React.FC<SidebarProps> = ({ setView }) => (
+const Sidebar: React.FC<SidebarProps> = ({ setSidebarView }) => (
   <aside
     style={{
       position: "fixed",
@@ -29,16 +27,22 @@ const Sidebar: React.FC<SidebarProps> = ({ setView }) => (
     <UserInfo />
     <nav className="w-full">
       <ul className="list-none p-0 m-0 w-full">
-        {sidebarItems.map((label) => (
-          <li key={label} className="mb-4 px-2 w-full">
-            <button
-              onClick={() => setView(label)}
-              className="w-full text-left px-4 py-2 rounded border border-transparent text-white bg-transparent transition-colors duration-200 hover:border-blue-500 focus:border-white focus:outline-none"
-            >
-              {label}
-            </button>
-          </li>
-        ))}
+        <li key="Library" className="mb-4 px-2 w-full">
+          <button
+            onClick={() => setSidebarView("Library")}
+            className="w-full text-left px-4 py-2 rounded border border-transparent text-white bg-transparent transition-colors duration-200 hover:border-blue-500 focus:border-white focus:outline-none"
+          >
+            Library
+          </button>
+        </li>
+        <li key="Testing Area" className="mb-4 px-2 w-full">
+          <button
+            onClick={() => setSidebarView("Testing Area")}
+            className="w-full text-left px-4 py-2 rounded border border-transparent text-white bg-transparent transition-colors duration-200 hover:border-blue-500 focus:border-white focus:outline-none"
+          >
+            Testing Area
+          </button>
+        </li>
       </ul>
     </nav>
   </aside>

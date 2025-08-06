@@ -10,7 +10,6 @@ const TestArea: React.FC<Props> = (props) => {
       <button
         onClick={async () => {
           const tracks = await syncTracks();
-          console.log(tracks);
         }}
       >
         Sync Tracks
