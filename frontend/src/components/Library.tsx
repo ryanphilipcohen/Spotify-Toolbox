@@ -1,6 +1,5 @@
 import React from "react";
 import InfiniteScroll from "./InfiniteScroll";
-import TagTree from "./TagTree";
 
 interface LibraryProps {
   libraryView: string;

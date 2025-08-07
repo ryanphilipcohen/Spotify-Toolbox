@@ -124,10 +124,8 @@ def get_tags_hierarchy(user_id: int = Header(...)):
             if parent_id in tag_map:
                 tag_map[parent_id]["children"].append(tag_map[tag["id"]])
             else:
-                # Parent tag not found — optionally treat as root
                 root_children.append(tag_map[tag["id"]])
 
-    # Create synthetic root
     root_tag = {
         "id": 0,
         "name": "Root",

@@ -1,4 +1,3 @@
-// types.ts
 export type Tag = {
   id: number;
   name: string;

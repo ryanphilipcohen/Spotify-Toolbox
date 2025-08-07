@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException, Request, Header, Depends
 from backend.app.models.web.user import SpotifyLogin
 from backend.database import get_connection
 from backend.auth import create_access_token
-from backend.auth import get_current_user
+from backend.auth import get_current_user  # type: ignore
 
 router = APIRouter()
 

@@ -1,5 +1,4 @@
 // Note: This code was adapted from the Spotify Web API documentation
-// I Didn't write this code, but I am using it in my project.
 
 import { getUserData } from "../spotify";
 
