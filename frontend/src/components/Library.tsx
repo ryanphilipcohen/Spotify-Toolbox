@@ -8,11 +8,7 @@ interface LibraryProps {
 }
 
 const Tracks = () => <InfiniteScroll />;
-const Tags = () => (
-  <div>
-    <TagTree />
-  </div>
-);
+const Tags = () => <div className="text-white">Tags view content</div>;
 const Catalogs = () => <div className="text-white">Catalogs view content</div>;
 
 const Library: React.FC<LibraryProps> = ({ libraryView, setLibraryView }) => {
