@@ -55,12 +55,12 @@ export async function isTokenExpired() {
     });
 
     if (response.status === 401) {
-      console.log("❌ Token expired or unauthorized");
+      console.log("Token expired or unauthorized");
       return true;
     }
 
     if (!response.ok) {
-      console.log("⚠️ Unexpected error", response.status);
+      console.log("Unexpected error", response.status);
       return true;
     }
     return false;

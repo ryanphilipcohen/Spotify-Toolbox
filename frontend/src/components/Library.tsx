@@ -1,5 +1,6 @@
 import React from "react";
 import InfiniteScroll from "./InfiniteScroll";
+import TagTree from "./TagTree";
 
 interface LibraryProps {
   libraryView: string;
@@ -7,7 +8,11 @@ interface LibraryProps {
 }
 
 const Tracks = () => <InfiniteScroll />;
-const Tags = () => <div className="text-white">Tags view content</div>;
+const Tags = () => (
+  <div>
+    <TagTree />
+  </div>
+);
 const Catalogs = () => <div className="text-white">Catalogs view content</div>;
 
 const Library: React.FC<LibraryProps> = ({ libraryView, setLibraryView }) => {

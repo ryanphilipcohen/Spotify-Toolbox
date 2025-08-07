@@ -1,6 +1,10 @@
 // types.ts
-export interface Tag {
+export type Tag = {
   id: number;
   name: string;
-  children: Tag[];
-}
+  type: string;
+  parent: number | null;
+  locked: boolean;
+  user_id: number;
+  children?: Tag[];
+};

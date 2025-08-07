@@ -17,7 +17,6 @@ const TestArea: React.FC<Props> = (props) => {
       <button
         onClick={async () => {
           const tags = await getTagsHierarchy();
-          console.log(tags);
         }}
       >
         Log Tags From Database

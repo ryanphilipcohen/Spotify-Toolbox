@@ -7,6 +7,7 @@ router = APIRouter()
 
 @router.post("/")
 def create_tag(tag: TagIn):
+
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -111,21 +112,33 @@ def get_tags_hierarchy(user_id: int = Header(...)):
         }
         for tag in tags
     ]
+
     tag_map = {tag["id"]: {**tag, "children": []} for tag in tags}
-    root_tags = []
+    root_children = []
 
     for tag in tags:
         parent_id = tag["parent"]
         if parent_id is None:
-            root_tags.append(tag_map[tag["id"]])
+            root_children.append(tag_map[tag["id"]])
         else:
             if parent_id in tag_map:
                 tag_map[parent_id]["children"].append(tag_map[tag["id"]])
             else:
-                # Log warning or handle missing parent case
-                root_tags.append(tag_map[tag["id"]])
+                # Parent tag not found — optionally treat as root
+                root_children.append(tag_map[tag["id"]])
 
-    return root_tags
+    # Create synthetic root
+    root_tag = {
+        "id": 0,
+        "name": "Root",
+        "type": "group",
+        "parent": None,
+        "locked": False,
+        "user_id": user_id,
+        "children": root_children,
+    }
+
+    return root_tag
 
 
 @router.delete("/{tag_id}")
