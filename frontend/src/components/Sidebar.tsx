@@ -21,11 +21,7 @@ const Sidebar: React.FC<SidebarProps> = ({ setSidebarView }) => (
       marginBottom: "10px",
     }}
   >
-    <img
-      src="../../public/favicon.png"
-      alt="Logo"
-      className="ml-4 w-8 h-8 mb-4"
-    />
+    <img src="../../favicon.png" alt="Logo" className="ml-4 w-8 h-8 mb-4" />
     <UserInfo />
     <nav className="w-full">
       <ul className="list-none p-0 m-0 w-full">

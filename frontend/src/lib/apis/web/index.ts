@@ -110,3 +110,54 @@ export async function getTracks(
   const data = await res.json();
   return data;
 }
+
+export async function addTag(tag: any): Promise<any> {
+  const app_token = localStorage.getItem("app_access_token");
+  if (!app_token) throw new Error("You must log in to the app first.");
+  const user = await getCurrentUser();
+  if (!user) throw new Error("User not found.");
+
+  console.log("Sending tag:", JSON.stringify(tag));
+
+  const res = await fetch("http://localhost:8000/tag/", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${app_token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(tag),
+  });
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(`Failed to add tag: ${error.error}`);
+  }
+  const data = await res.json();
+  return data;
+}
+
+export async function deleteTag(tag_id: number): Promise<any> {
+  const app_token = localStorage.getItem("app_access_token");
+  if (!app_token) throw new Error("You must log in to the app first.");
+
+  const user = await getCurrentUser();
+  if (!user) throw new Error("User not found.");
+
+  console.log(`Deleting tag ID: ${tag_id}`);
+
+  const res = await fetch(`http://localhost:8000/tag/${tag_id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${app_token}`,
+      "Content-Type": "application/json",
+      "user-id": user.id.toString(),
+    },
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(`Failed to delete tag: ${error.detail || error.error}`);
+  }
+
+  const data = await res.json();
+  return data;
+}

@@ -22,7 +22,7 @@ def create_tag(tag: TagIn):
     conn.close()
 
     return TagOut(
-        id=tag.id,
+        id=cursor.lastrowid,
         user_id=tag.user_id,
         name=tag.name,
         type=tag.type,
@@ -139,28 +139,87 @@ def get_tags_hierarchy(user_id: int = Header(...)):
     return root_tag
 
 
+from fastapi import HTTPException
+
+
 @router.delete("/{tag_id}")
-def delete_tag(tag_id: int, user_id: int):
+def delete_tag(tag_id: int, user_id: int = Header(...)):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute(
-        """        SELECT locked FROM tag WHERE id = ? AND user_id = ?
-        """,
-        (tag_id, user_id),
-    )
-    result = cursor.fetchone()
-    if not result:
-        conn.close()
-        return {"error": "Tag not found"}
-    if result[0]:
-        conn.close()
-        return {"error": "Tag is locked and cannot be deleted"}
-    cursor.execute(
+
+    try:
+        # 1) Make sure the tag exists for this user and collect root+descendants
+        cte_collect = """
+        WITH RECURSIVE descendants(id, locked) AS (
+            SELECT id, locked FROM tag WHERE id = ? AND user_id = ?
+            UNION ALL
+            SELECT t.id, t.locked
+            FROM tag t
+            JOIN descendants d ON t.parent = d.id
+            WHERE t.user_id = ?
+        )
+        SELECT id FROM descendants;
         """
-        DELETE FROM tag WHERE id = ?
-        """,
-        (tag_id,),
-    )
-    conn.commit()
-    conn.close()
-    return {"message": "Tag deleted successfully"}
+        cursor.execute(cte_collect, (tag_id, user_id, user_id))
+        rows = cursor.fetchall()
+        if not rows:
+            conn.close()
+            raise HTTPException(status_code=404, detail="Tag not found")
+
+        ids_to_delete = [r[0] for r in rows]
+
+        # 2) Check whether any of the (root + descendants) are locked
+        cte_check_locked = """
+        WITH RECURSIVE descendants(id, locked) AS (
+            SELECT id, locked FROM tag WHERE id = ? AND user_id = ?
+            UNION ALL
+            SELECT t.id, t.locked
+            FROM tag t
+            JOIN descendants d ON t.parent = d.id
+            WHERE t.user_id = ?
+        )
+        SELECT id FROM descendants WHERE locked = 1;
+        """
+        cursor.execute(cte_check_locked, (tag_id, user_id, user_id))
+        locked = cursor.fetchall()
+        if locked:
+            locked_ids = [r[0] for r in locked]
+            conn.close()
+            raise HTTPException(
+                status_code=403,
+                detail={
+                    "error": "One or more tags are locked and cannot be deleted",
+                    "locked_ids": locked_ids,
+                },
+            )
+
+        # 3) Delete all collected IDs in a transaction
+        cursor.execute("BEGIN")
+        cte_delete = """
+        WITH RECURSIVE descendants(id) AS (
+            SELECT id FROM tag WHERE id = ? AND user_id = ?
+            UNION ALL
+            SELECT t.id
+            FROM tag t
+            JOIN descendants d ON t.parent = d.id
+            WHERE t.user_id = ?
+        )
+        DELETE FROM tag WHERE id IN (SELECT id FROM descendants);
+        """
+        cursor.execute(cte_delete, (tag_id, user_id, user_id))
+        conn.commit()
+
+        return {
+            "message": "Tags deleted",
+            "deleted_count": len(ids_to_delete),
+            "deleted_ids": ids_to_delete,
+        }
+
+    except HTTPException:
+        # re-raise known HTTP errors
+        raise
+    except Exception as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
