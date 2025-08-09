@@ -114,7 +114,7 @@ const TagTree: React.FC<TagTreeProps> = ({
     );
   };
 
-  if (loading) return <p>Loading tags...</p>;
+  if (loading) return <p></p>;
   if (error) return <p>{error}</p>;
   if (!tagRoot) return <p>No tags found.</p>;
 
