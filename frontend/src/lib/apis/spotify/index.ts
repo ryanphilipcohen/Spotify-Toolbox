@@ -35,27 +35,6 @@ export async function getAllSavedTracks(): Promise<any[]> {
   return allTracks;
 }
 
-async function callSyncTracks() {
-  const spotify_token = localStorage.getItem("spotify_access_token");
-  if (!spotify_token) return alert("You must log in with Spotify first.");
-  const app_token = localStorage.getItem("app_access_token");
-  if (!app_token) return alert("You must log in to the app first.");
-
-  const res = await fetch("http://localhost:8000/spotify/sync-tracks", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Spotify-Token": spotify_token,
-      Authorization: `Bearer ${app_token}`,
-    },
-  });
-
-  const data = await res.json();
-
-  // TODO: send to database
-  console.log("Synced tracks:", data);
-}
-
 export async function isTokenExpired() {
   const spotify_token = localStorage.getItem("spotify_access_token");
   if (!spotify_token) {
@@ -76,12 +55,12 @@ export async function isTokenExpired() {
     });
 
     if (response.status === 401) {
-      console.log("❌ Token expired or unauthorized");
+      console.log("Token expired or unauthorized");
       return true;
     }
 
     if (!response.ok) {
-      console.log("⚠️ Unexpected error", response.status);
+      console.log("Unexpected error", response.status);
       return true;
     }
     return false;

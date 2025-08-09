@@ -1,7 +1,5 @@
 import sqlite3
 
-# TODO write constants in separate file for things like database location
-
 
 def get_connection():
     conn = sqlite3.connect("database.sqlite3")
@@ -41,11 +39,12 @@ def create_tables():
         CREATE TABLE IF NOT EXISTS track (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER,
-            track_index INTEGER,
+            added_at TEXT,
             name TEXT NOT NULL,
             image TEXT NOT NULL,
             spotify_id TEXT NOT NULL,
             FOREIGN KEY (user_id) REFERENCES user(id)
+            UNIQUE(user_id, added_at)
         )
         """
     )
