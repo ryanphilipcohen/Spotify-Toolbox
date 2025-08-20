@@ -12,8 +12,28 @@ def create_track(track: TrackIn):
     cursor = conn.cursor()
 
     cursor.execute(
-        "INSERT INTO track (user_id, added_at, name, image, spotify_id) VALUES (?, ?)",
-        (track.user_id, track.added_at, track.name, track.image, track.spotify_id),
+        """
+        INSERT INTO track (
+            user_id, added_at, name, artists, album, album_id,
+            duration_ms, explicit, popularity, track_number,
+            release_date, image, spotify_id
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            track.user_id,
+            track.added_at,
+            track.name,
+            track.artists,
+            track.album,
+            track.album_id,
+            track.duration_ms,
+            track.explicit,
+            track.popularity,
+            track.track_number,
+            track.release_date,
+            track.image,
+            track.spotify_id,
+        ),
     )
 
     conn.commit()
@@ -23,6 +43,14 @@ def create_track(track: TrackIn):
         user_id=track.user_id,
         added_at=track.added_at,
         name=track.name,
+        artists=track.artists,
+        album=track.album,
+        album_id=track.album_id,
+        duration_ms=track.duration_ms,
+        explicit=track.explicit,
+        popularity=track.popularity,
+        track_number=track.track_number,
+        release_date=track.release_date,
         image=track.image,
         spotify_id=track.spotify_id,
     )
@@ -46,7 +74,15 @@ def get_track(track: TrackIn):
         TrackOut(
             user_id=track.user_id,
             added_at=track.added_at,
-            name=track_data[1],
+            name=track.name,
+            artists=track.artists,
+            album=track.album,
+            album_id=track.album_id,
+            duration_ms=track.duration_ms,
+            explicit=track.explicit,
+            popularity=track.popularity,
+            track_number=track.track_number,
+            release_date=track.release_date,
             image=track.image,
             spotify_id=track.spotify_id,
         )
@@ -68,8 +104,10 @@ def get_tracks(
 
     # Base query
     query = """
-        SELECT id, user_id, added_at, name, image, spotify_id"""
-    query += " FROM track WHERE user_id = ?"
+        SELECT id, user_id, name, artists, album, album_id, duration_ms,
+               explicit, popularity, track_number, release_date, added_at,
+                image, spotify_id  FROM track WHERE user_id = ?
+    """
     params = [user_id]
 
     # Add sorting
@@ -93,44 +131,83 @@ def get_tracks(
     return [
         TrackOut(
             user_id=row[1],
-            added_at=row[2],
-            name=row[3],
-            image=row[4],
-            spotify_id=row[5],
+            name=row[2],
+            artists=row[3],
+            album=row[4],
+            album_id=row[5],
+            duration_ms=row[6],
+            explicit=row[7],
+            popularity=row[8],
+            track_number=row[9],
+            release_date=row[10],
+            added_at=row[11],
+            image=row[12],
+            spotify_id=row[13],
         )
         for row in sliced_data
     ]
 
 
 @router.post("/sync-tracks")
-def sync_tracks(user_id: int = Header(...), tracks: list[TrackIn] = Body(...)):
+async def sync_tracks(user_id: int = Header(...), tracks: list[TrackIn] = Body(...)):
     conn = get_connection()
     cursor = conn.cursor()
 
-    for track in tracks:
-        cursor.execute(
-            """
-                INSERT INTO track (user_id, added_at, name, image, spotify_id)
-                VALUES (?, ?, ?, ?, ?)
+    try:
+        # first, remove all current tracks for the user
+        # tracks that will have been deleted from the user's library must be removed here
+        cursor.execute("DELETE FROM track WHERE user_id = ?", (user_id,))
+        for track in tracks:
+            cursor.execute(
+                """
+                INSERT INTO track (
+                    user_id, added_at, name, artists, album, album_id,
+                    duration_ms, explicit, popularity, track_number,
+                    release_date, image, spotify_id
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(user_id, added_at) DO UPDATE SET
                     name = excluded.name,
+                    artists = excluded.artists,
+                    album = excluded.album,
+                    album_id = excluded.album_id,
+                    duration_ms = excluded.duration_ms,
+                    explicit = excluded.explicit,
+                    popularity = excluded.popularity,
+                    track_number = excluded.track_number,
+                    release_date = excluded.release_date,
                     image = excluded.image,
                     spotify_id = excluded.spotify_id
                 """,
-            (
-                track.user_id,
-                track.added_at,
-                track.name,
-                track.image,
-                track.spotify_id,
-            ),
-        )
+                (
+                    track.user_id,
+                    track.added_at,
+                    track.name,
+                    track.artists,
+                    track.album,
+                    track.album_id,
+                    track.duration_ms,
+                    track.explicit,
+                    track.popularity,
+                    track.track_number,
+                    track.release_date,
+                    track.image,
+                    track.spotify_id,
+                ),
+            )
 
-    cursor.execute(
-        "SELECT id, user_id, added_at, name, image, spotify_id FROM track WHERE user_id = ?",
-        (user_id,),
-    )
-    track_data = cursor.fetchall()
+        cursor.execute(
+            """
+            SELECT id, user_id, name, artists, album, album_id, duration_ms,
+                explicit, popularity, track_number, release_date, added_at,
+                image, spotify_id  FROM track WHERE user_id = ?
+        """,
+            (user_id,),
+        )
+        track_data = cursor.fetchall()
+    except Exception as e:
+        conn.rollback()
+        conn.close()
+        raise HTTPException(status_code=500, detail=str(e))
 
     conn.commit()
     conn.close()
@@ -138,10 +215,18 @@ def sync_tracks(user_id: int = Header(...), tracks: list[TrackIn] = Body(...)):
     return [
         TrackOut(
             user_id=row[1],
-            added_at=row[2],
-            name=row[3],
-            image=row[4],
-            spotify_id=row[5],
+            name=row[2],
+            artists=row[3],
+            album=row[4],
+            album_id=row[5],
+            duration_ms=row[6],
+            explicit=row[7],
+            popularity=row[8],
+            track_number=row[9],
+            release_date=row[10],
+            added_at=row[11],
+            image=row[12],
+            spotify_id=row[13],
         )
         for row in track_data
         if row is not None

@@ -1,12 +1,10 @@
 import React from "react";
-import InfiniteScroll from "./InfiniteScroll";
-
+import TrackLibrary from "./TrackLibrary";
 interface LibraryProps {
   libraryView: string;
   setLibraryView: (view: string) => void;
 }
 
-const Tracks = () => <InfiniteScroll />;
 const Tags = () => <div className="text-white">Tags view content</div>;
 const Catalogs = () => <div className="text-white">Catalogs view content</div>;
 
@@ -22,7 +20,7 @@ const Library: React.FC<LibraryProps> = ({ libraryView, setLibraryView }) => {
       break;
     case "Tracks":
     default:
-      ViewComponent = <Tracks />;
+      ViewComponent = <TrackLibrary />;
       break;
   }
 

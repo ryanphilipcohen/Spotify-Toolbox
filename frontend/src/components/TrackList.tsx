@@ -3,9 +3,13 @@
 import React, { useState, useEffect } from "react";
 import { getTracks } from "../lib/apis/web/index";
 
-const pageSize = 100;
+const pageSize = 10;
 
-function InfiniteScroll() {
+interface TrackListProps {
+  refreshSignal?: number;
+}
+
+const TrackList: React.FC<TrackListProps> = ({ refreshSignal = 0 }) => {
   const [loadedData, setLoadedData] = useState([]);
   const [start, setStart] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -15,6 +19,19 @@ function InfiniteScroll() {
     const endIndex = startIndex + pageSize;
     return await getTracks(startIndex, endIndex);
   };
+
+  // create a useeffect here to reload the page and get data again
+  useEffect(() => {
+    setLoadedData([]);
+    setStart(0);
+    setMoreData(true);
+  }, [refreshSignal]);
+
+  useEffect(() => {
+    if (moreData && start === 0 && loadedData.length === 0) {
+      loadMoreData();
+    }
+  }, [start, moreData, loadedData]);
 
   const loadMoreData = async () => {
     if (loading || !moreData) return;
@@ -70,6 +87,6 @@ function InfiniteScroll() {
       {!loading && !moreData && <div>No more data</div>}
     </div>
   );
-}
+};
 
-export default InfiniteScroll;
+export default TrackList;

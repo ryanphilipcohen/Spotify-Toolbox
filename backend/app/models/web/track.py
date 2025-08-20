@@ -2,10 +2,18 @@ from pydantic import BaseModel
 
 
 class TrackIn(BaseModel):
-    user_id: int | None = None
-    added_at: str
+    user_id: int
     name: str
-    image: str
+    artists: str
+    album: str
+    album_id: str
+    duration_ms: int
+    explicit: bool
+    popularity: int
+    track_number: int
+    release_date: str
+    added_at: str
+    image: str | None = None
     spotify_id: str
 
 
