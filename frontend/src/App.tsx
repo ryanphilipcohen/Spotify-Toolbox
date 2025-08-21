@@ -1,31 +1,18 @@
 import "./App.css";
-import React, { useState } from "react";
-
-import Sidebar from "./components/Sidebar";
+import React from "react";
+import { Routes, Route } from "react-router-dom";
+import Layout from "./components/Layout";
 import TestArea from "./components/TestArea";
 import Library from "./components/Library";
 
 const App: React.FC = () => {
-  const [sidebarView, setSidebarView] = useState("Library");
-  const [libraryView, setLibraryView] = useState("Tracks");
-
-  let MainComponent;
-  switch (sidebarView) {
-    case "Testing Area":
-      MainComponent = <TestArea />;
-      break;
-    case "Library":
-    default:
-      MainComponent = (
-        <Library libraryView={libraryView} setLibraryView={setLibraryView} />
-      );
-      break;
-  }
   return (
-    <div className="flex">
-      <Sidebar setSidebarView={setSidebarView} />
-      <main className="ml-[220px] flex-grow">{MainComponent}</main>
-    </div>
+    <Routes>
+      <Route path="/" element={<Layout />}>
+        <Route path="library" element={<Library />} />
+        <Route path="testing" element={<TestArea />} />
+      </Route>
+    </Routes>
   );
 };
 

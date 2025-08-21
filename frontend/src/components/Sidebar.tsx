@@ -1,11 +1,8 @@
 import React from "react";
 import { UserInfo } from "./UserInfo";
+import { Link } from "react-router-dom";
 
-interface SidebarProps {
-  setSidebarView: (view: string) => void;
-}
-
-const Sidebar: React.FC<SidebarProps> = ({ setSidebarView }) => (
+const Sidebar: React.FC = () => (
   <aside
     style={{
       position: "fixed",
@@ -26,20 +23,20 @@ const Sidebar: React.FC<SidebarProps> = ({ setSidebarView }) => (
     <nav className="w-full">
       <ul className="list-none p-0 m-0 w-full">
         <li key="Library" className="mb-4 px-2 w-full">
-          <button
-            onClick={() => setSidebarView("Library")}
+          <Link
+            to="/library"
             className="w-full text-left px-4 py-2 rounded border border-transparent text-white bg-transparent transition-colors duration-200 hover:border-blue-500 focus:border-white focus:outline-none"
           >
             Library
-          </button>
+          </Link>
         </li>
         <li key="Testing Area" className="mb-4 px-2 w-full">
-          <button
-            onClick={() => setSidebarView("Testing Area")}
+          <Link
+            to="/testing"
             className="w-full text-left px-4 py-2 rounded border border-transparent text-white bg-transparent transition-colors duration-200 hover:border-blue-500 focus:border-white focus:outline-none"
           >
             Testing Area
-          </button>
+          </Link>
         </li>
       </ul>
     </nav>

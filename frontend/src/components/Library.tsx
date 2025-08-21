@@ -1,15 +1,12 @@
 import React from "react";
 import TrackLibrary from "./TrackLibrary";
-interface LibraryProps {
-  libraryView: string;
-  setLibraryView: (view: string) => void;
-}
 
 const Tags = () => <div className="text-white">Tags view content</div>;
 const Catalogs = () => <div className="text-white">Catalogs view content</div>;
 
-const Library: React.FC<LibraryProps> = ({ libraryView, setLibraryView }) => {
+const Library: React.FC = () => {
   let ViewComponent;
+  let [libraryView, setLibraryView] = React.useState("Tracks");
 
   switch (libraryView) {
     case "Tags":
