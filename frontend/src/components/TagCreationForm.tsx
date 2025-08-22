@@ -2,9 +2,12 @@ import React, { useState } from "react";
 import TagTree from "./TagTree";
 import { type Tag } from "../types/tag";
 import { addTag, getCurrentUser } from "../lib/apis/web";
+import { useLocation } from "react-router-dom";
 
 const TagCreationForm: React.FC = () => {
-  const [entry, setEntry] = useState("");
+  const location = useLocation();
+  const parentTag = (location.state as { parentTag?: Tag | null })?.parentTag;
+
   const rootTag: Tag = {
     id: 1,
     name: "root",
@@ -14,7 +17,12 @@ const TagCreationForm: React.FC = () => {
     user_id: 1,
     children: [],
   };
-  const [selectedParent, setSelectedParent] = useState(rootTag);
+
+  const [selectedParent, setSelectedParent] = useState<Tag>(
+    parentTag ?? rootTag
+  );
+
+  const [entry, setEntry] = useState("");
   const [showTagTree, setShowTagTree] = useState(false);
   const [refreshSignal, setRefreshSignal] = useState(0);
 

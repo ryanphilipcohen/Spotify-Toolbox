@@ -1,7 +1,7 @@
 import React from "react";
 import TrackLibrary from "./TrackLibrary";
+import TagLibrary from "./TagLibrary";
 
-const Tags = () => <div className="text-white">Tags view content</div>;
 const Catalogs = () => <div className="text-white">Catalogs view content</div>;
 
 const Library: React.FC = () => {
@@ -10,7 +10,7 @@ const Library: React.FC = () => {
 
   switch (libraryView) {
     case "Tags":
-      ViewComponent = <Tags />;
+      ViewComponent = <TagLibrary />;
       break;
     case "Catalogs":
       ViewComponent = <Catalogs />;
