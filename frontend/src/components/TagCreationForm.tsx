@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import TagTree from "./TagTree";
 import { type Tag } from "../types/tag";
 import { addTag, getCurrentUser } from "../lib/apis/web";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const TagCreationForm: React.FC = () => {
+  const navigate = useNavigate();
+
   const location = useLocation();
   const parentTag = (location.state as { parentTag?: Tag | null })?.parentTag;
 
@@ -63,6 +65,7 @@ const TagCreationForm: React.FC = () => {
           <TagTree
             onTagClick={updateParentSelection}
             includeAddButtons={false}
+            includeDeleteButtons={false}
             selectedTag={selectedParent}
             refreshSignal={refreshSignal}
             onTagDeleted={handleTagDeleted}
@@ -84,10 +87,9 @@ const TagCreationForm: React.FC = () => {
             locked: false,
             user_id: user.id,
           };
-          const res = await addTag(tag);
-          console.log("Created tag:", res);
-          setEntry("");
-          setRefreshSignal((prev) => prev + 1);
+          setRefreshSignal((prev) => prev + 1); // possibly not needed since I'm swapping pages
+          await addTag(tag);
+          navigate(-1);
         }}
       >
         Create Tag
