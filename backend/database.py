@@ -1,5 +1,12 @@
 import sqlite3
 
+"""
+EXPLANATION:
+This app uses a SQLite database to store user data, tracks, tags, and catalogs.
+SQLite is easy to use, requiring minimal setup (with no server), sufficient for this app.
+This file contains the functions used to work with the database.
+"""
+
 
 def get_connection():
     conn = sqlite3.connect("database.sqlite3")

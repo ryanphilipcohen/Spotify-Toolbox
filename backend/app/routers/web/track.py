@@ -92,6 +92,13 @@ def get_track(track: TrackIn, user_id: str = Depends(get_current_user)):
     )
 
 
+"""
+This function has a couple of parameters to function as a pagination and sorting mechanism.
+sort_by and order use regex to limit the options available to the user.
+Query and Optional are used to make the parameters optional, giving a default or specific options.
+"""
+
+
 @router.get("/tracks")
 def get_tracks(
     start: Optional[int] = Query(None, ge=0),
@@ -147,6 +154,12 @@ def get_tracks(
         )
         for row in sliced_data
     ]
+
+
+"""
+Body is a list of TrackIn objects, and it's passed in the request body.
+You use body when you want to send more complex data structures in the request.
+"""
 
 
 @router.post("/sync-tracks")
@@ -208,7 +221,7 @@ async def sync_tracks(
         )
         track_data = cursor.fetchall()
     except Exception as e:
-        conn.rollback()
+        conn.rollback()  # this will undo any changes made to the database
         conn.close()
         raise HTTPException(status_code=500, detail=str(e))
 

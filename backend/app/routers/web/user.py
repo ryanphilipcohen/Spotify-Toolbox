@@ -2,8 +2,7 @@ from fastapi import APIRouter, HTTPException, Request, Header, Depends
 
 from backend.app.models.web.user import SpotifyLogin
 from backend.database import get_connection
-from backend.auth import create_access_token
-from backend.auth import get_current_user  # type: ignore
+from backend.auth import create_access_token, get_current_user  # type: ignore
 
 router = APIRouter()
 
@@ -43,6 +42,11 @@ def get_current_user(user_id: str = Depends(get_current_user)):
             }
         }
     raise HTTPException(status_code=404, detail="User not found")
+
+
+"""
+Creates a new user if they don't exist, and returns a JWT for the app to authenticate
+"""
 
 
 @router.post("/spotify-login")

@@ -7,6 +7,12 @@ from backend.auth import get_current_user
 router = APIRouter()
 
 
+"""
+All api endpoints will be formatted in the following way, with a decorator, path, and corresponding function.
+API calls related to the user must go through the auth process with get_current_user
+"""
+
+
 @router.post("/")
 def create_tag(tag: TagIn, user_id: str = Depends(get_current_user)):
 
