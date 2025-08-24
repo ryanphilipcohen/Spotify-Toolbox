@@ -15,7 +15,7 @@ const TrackList: React.FC<TrackListProps> = ({ refreshSignal = 0 }) => {
   const [loading, setLoading] = useState(false);
   const [moreData, setMoreData] = useState(true);
 
-  const GetData = async (startIndex, pageSize) => {
+  const GetData = async (startIndex: number | undefined, pageSize: number) => {
     const endIndex = startIndex + pageSize;
     return await getTracks(startIndex, endIndex);
   };

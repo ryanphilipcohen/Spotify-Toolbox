@@ -1,5 +1,5 @@
 import React from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom"; // Allows us to read and modify the URL search parameters
 import TrackLibrary from "./TrackLibrary";
 import TagLibrary from "./TagLibrary";
 

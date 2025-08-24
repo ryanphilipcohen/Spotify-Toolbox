@@ -16,7 +16,7 @@ const TagCreationForm: React.FC = () => {
     type: "string",
     parent: null,
     locked: true,
-    user_id: 1,
+    user_id: 0,
     children: [],
   };
 

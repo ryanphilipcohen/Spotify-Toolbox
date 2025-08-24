@@ -6,7 +6,8 @@ export default function Layout() {
     <div className="flex">
       <Sidebar />
       <main className="ml-[220px] flex-grow">
-        <Outlet />
+        <Outlet />{" "}
+        {/*  This component will be changed by navigating to pages like /tag */}
       </main>
     </div>
   );
