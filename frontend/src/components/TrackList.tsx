@@ -1,6 +1,6 @@
 // modified from https://www.geeksforgeeks.org/reactjs/implementing-pagination-and-infinite-scrolling-with-react-hooks/
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { getTracks } from "../lib/apis/web/index";
 
 const pageSize = 10;
@@ -10,38 +10,26 @@ interface TrackListProps {
 }
 
 const TrackList: React.FC<TrackListProps> = ({ refreshSignal = 0 }) => {
-  const [loadedData, setLoadedData] = useState([]);
-  const [start, setStart] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [loadedData, setLoadedData] = useState<any[]>([]);
   const [moreData, setMoreData] = useState(true);
 
-  const GetData = async (startIndex: number | undefined, pageSize: number) => {
-    const endIndex = startIndex + pageSize;
-    return await getTracks(startIndex, endIndex);
-  };
-
-  // create a useeffect here to reload the page and get data again
-  useEffect(() => {
-    setLoadedData([]);
-    setStart(0);
-    setMoreData(true);
-  }, [refreshSignal]);
-
-  useEffect(() => {
-    if (moreData && start === 0 && loadedData.length === 0) {
-      loadMoreData();
-    }
-  }, [start, moreData, loadedData]);
+  const startRef = useRef(0);
+  const loadingRef = useRef(false);
 
   const loadMoreData = async () => {
-    if (loading || !moreData) return;
-    setLoading(true);
+    if (loadingRef.current || !moreData) return;
+    loadingRef.current = true;
+
+    const currentStart = startRef.current;
+
     try {
-      const newData = await GetData(start, pageSize);
+      const newData = await getTracks(currentStart, currentStart + pageSize);
+
       if (Array.isArray(newData) && newData.length > 0) {
         setLoadedData((prev) => [...prev, ...newData]);
-        setStart((prev) => prev + newData.length);
-        if (newData.length < pageSize) setMoreData(false); // no more pages
+        startRef.current += newData.length;
+
+        if (newData.length < pageSize) setMoreData(false);
       } else {
         setMoreData(false);
       }
@@ -49,28 +37,33 @@ const TrackList: React.FC<TrackListProps> = ({ refreshSignal = 0 }) => {
       console.error("Error loading data", err);
       setMoreData(false);
     } finally {
-      setLoading(false);
+      loadingRef.current = false;
     }
   };
 
+  // Reset when refreshSignal changes
   useEffect(() => {
-    loadMoreData(); // initial load
-  }, []);
+    setLoadedData([]);
+    startRef.current = 0;
+    setMoreData(true);
+    loadMoreData(); // reload first page
+  }, [refreshSignal]);
 
+  // Infinite scroll
   useEffect(() => {
     const handleScroll = () => {
       const nearBottom =
         window.innerHeight + window.scrollY >=
         document.documentElement.offsetHeight - 200;
 
-      if (nearBottom && !loading && moreData) {
+      if (nearBottom) {
         loadMoreData();
       }
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [loading, moreData]);
+  }, []);
 
   return (
     <div>
@@ -83,8 +76,8 @@ const TrackList: React.FC<TrackListProps> = ({ refreshSignal = 0 }) => {
           <hr />
         </div>
       ))}
-      {loading && <div>Loading...</div>}
-      {!loading && !moreData && <div>No more data</div>}
+      {loadingRef.current && <div>Loading...</div>}
+      {!loadingRef.current && !moreData && <div>No more data</div>}
     </div>
   );
 };
