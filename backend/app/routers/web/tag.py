@@ -1,12 +1,14 @@
-from fastapi import APIRouter, Header
+from fastapi import APIRouter, HTTPException, Header, Depends
 from backend.app.models.web.tag import TagIn, TagOut
 from backend.database import get_connection
+from backend.auth import get_current_user
+
 
 router = APIRouter()
 
 
 @router.post("/")
-def create_tag(tag: TagIn):
+def create_tag(tag: TagIn, user_id: str = Depends(get_current_user)):
 
     conn = get_connection()
     cursor = conn.cursor()
@@ -15,7 +17,7 @@ def create_tag(tag: TagIn):
         """
         INSERT INTO tag (user_id, name, type, parent, locked) VALUES (?, ?, ?, ?, ?)
             """,
-        (tag.user_id, tag.name, tag.type, tag.parent, tag.locked),
+        (user_id, tag.name, tag.type, tag.parent, tag.locked),
     )
 
     conn.commit()
@@ -32,7 +34,7 @@ def create_tag(tag: TagIn):
 
 
 @router.get("/")
-def get_tag(tag: TagIn):
+def get_tag(tag: TagIn, user_id: str = Depends(get_current_user)):
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -40,8 +42,10 @@ def get_tag(tag: TagIn):
         """
         SELECT id, name, type, locked FROM tag WHERE user_id = ? AND id = ?
         """,
-        (tag.user_id, tag.id),
+        (user_id, tag.id),
     )
+
+    # only one song has this ID, so we're fetching index 0 of size 1
     tag_data = cursor.fetchone()
 
     conn.commit()
@@ -61,7 +65,8 @@ def get_tag(tag: TagIn):
 
 
 @router.get("/tags")
-def get_tags(user_id: int = Header(...)):
+def get_tags(user_id: str = Depends(get_current_user)):
+
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -77,7 +82,7 @@ def get_tags(user_id: int = Header(...)):
     return [
         TagOut(
             id=tag[0],
-            user_id=user_id,
+            user_id=user_id,  # type: ignore
             name=tag[1],
             type=tag[2],
             parent=tag[3],
@@ -88,7 +93,7 @@ def get_tags(user_id: int = Header(...)):
 
 
 @router.get("/tags_hierarchy")
-def get_tags_hierarchy(user_id: int = Header(...)):
+def get_tags_hierarchy(user_id: str = Depends(get_current_user)):
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -139,11 +144,8 @@ def get_tags_hierarchy(user_id: int = Header(...)):
     return root_tag
 
 
-from fastapi import HTTPException
-
-
 @router.delete("/{tag_id}")
-def delete_tag(tag_id: int, user_id: int = Header(...)):
+def delete_tag(tag_id: int, user_id: str = Depends(get_current_user)):
     conn = get_connection()
     cursor = conn.cursor()
 

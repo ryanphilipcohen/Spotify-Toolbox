@@ -1,13 +1,14 @@
-from fastapi import APIRouter, Header, Body, HTTPException, Query
+from fastapi import APIRouter, Header, Body, HTTPException, Query, Depends
 from backend.app.models.web.track import TrackIn, TrackOut
 from backend.database import get_connection
 from typing import Optional
+from backend.auth import get_current_user
 
 router = APIRouter()
 
 
 @router.post("/")
-def create_track(track: TrackIn):
+def create_track(track: TrackIn, user_id: str = Depends(get_current_user)):
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -57,7 +58,7 @@ def create_track(track: TrackIn):
 
 
 @router.get("/")
-def get_track(track: TrackIn):
+def get_track(track: TrackIn, user_id: str = Depends(get_current_user)):
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -97,7 +98,7 @@ def get_tracks(
     end: Optional[int] = Query(None, ge=0),
     sort_by: Optional[str] = Query(None, regex="^(added_at|name)$"),
     order: Optional[str] = Query("desc", regex="^(asc|desc)$"),
-    user_id: int = Header(...),
+    user_id: str = Depends(get_current_user),
 ):
     conn = get_connection()
     cursor = conn.cursor()
@@ -149,7 +150,9 @@ def get_tracks(
 
 
 @router.post("/sync-tracks")
-async def sync_tracks(user_id: int = Header(...), tracks: list[TrackIn] = Body(...)):
+async def sync_tracks(
+    tracks: list[TrackIn] = Body(...), user_id: str = Depends(get_current_user)
+):
     conn = get_connection()
     cursor = conn.cursor()
 
