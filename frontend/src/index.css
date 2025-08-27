@@ -3,16 +3,147 @@
 @tailwind utilities;
 
 :root {
+  --color-dark: #1f2021ff;
+  --color-medium: #2a2b2fff;
+  --color-light: #5b6166;
+
+  --color-text: #e0e0e0ff;
+
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: var(--color-medium);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.sidebar {
+  width: 250px;
+  height: 100vh; /* Full height */
+  padding: 0.5rem;
+
+  background-color: var(--color-dark);
+  color: var(--color-text);
+
+  display: flex;
+  flex-direction: column;
+
+  /* Fix sidebar to top right even when scrolling */
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+.main-content {
+  margin-left: 250px; /* Same as the width of the sidebar */
+  padding: 1rem;
+  height: 100vh; /* Full height */
+  overflow-y: auto; /* Enable vertical scrolling if content overflows */
+  flex-grow: 1;
+
+  background-color: var(--color-medium);
+  color: var(--color-text);
+}
+
+/* Sidebar */
+
+.sidebar-item {
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  width: 100%;
+
+  border-radius: 0.375rem; /* Rounded corners */
+
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--color-medium);
+  }
+
+  &:active {
+    background-color: var(--color-light);
+  }
+
+  transition: background-color 0.3s, color 0.3s; /* Smooth transition for hover effects */
+}
+
+/* Track List */
+
+.track-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem;
+  background: var(--color-dark); /* Spotify dark background */
+  color: #fff;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+}
+
+.track-list__list > div {
+  padding-right: 5rem; /* Space for scrollbar */
+}
+
+.track-list__item {
+  display: grid;
+  grid-template-columns: 48px 1fr auto; /* image | info | duration */
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.track-list__item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.track-list__image {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+.track-list__info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.track-list__name {
+  font-size: 0.95rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: default;
+}
+
+.track-list__artists {
+  font-size: 0.8rem;
+  color: #b3b3b3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track-list__duration {
+  font-size: 0.85rem;
+  color: #b3b3b3;
+  margin-left: 1rem;
+}
+
+.track-list__loading,
+.track-list__end {
+  text-align: center;
+  color: #b3b3b3;
+  padding: 1rem;
+  font-size: 0.9rem;
 }

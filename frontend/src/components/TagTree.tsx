@@ -69,25 +69,34 @@ const TagTree: React.FC<TagTreeProps> = ({
             border: "1px solid gray",
             width: "fit-content",
           }}
+          className="tag-tree-node"
         >
           <button
             onClick={() => hasChildren && toggleTagExpansion(tag.id)}
             style={{ marginRight: 8 }}
             disabled={!hasChildren}
+            className="tag-tree-expand-btn"
           >
             {hasChildren ? (isExpanded ? "v" : ">") : "*"}
           </button>
-          <span onClick={() => onTagClick(tag)} style={{ cursor: "pointer" }}>
+          <span
+            onClick={() => onTagClick(tag)}
+            style={{ cursor: "pointer" }}
+            className="tag-tree-name"
+          >
             {tag.name}
           </span>
           {includeAddButtons && (
-            <button className="ml-2" onClick={() => handleAddTag(tag)}>
+            <button
+              className="tag-tree-add-btn ml-2"
+              onClick={() => handleAddTag(tag)}
+            >
               +
             </button>
           )}
           {includeDeleteButtons && (
             <button
-              className="ml-2"
+              className="tag-tree-delete-btn ml-2"
               onClick={async () => {
                 await deleteTag(tag.id);
                 const data = await getTagsHierarchy();
@@ -109,13 +118,18 @@ const TagTree: React.FC<TagTreeProps> = ({
   if (!tagRoot) return <p>No tags found.</p>;
 
   return (
-    <div>
+    <div className="tag-tree-root">
       {/* Render children if they exist */}
       {renderTagChildren(tagRoot.children || [], 1)}
 
       {/* Root-level add button always visible */}
       {includeAddButtons && (
-        <button onClick={() => handleAddTag(tagRoot)}>+</button>
+        <button
+          className="tag-tree-add-btn"
+          onClick={() => handleAddTag(tagRoot)}
+        >
+          +
+        </button>
       )}
     </div>
   );

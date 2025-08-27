@@ -14,7 +14,7 @@ const TrackLibrary: React.FC = () => {
       >
         sync
       </button>
-      <TrackList refreshSignal={refreshSignal} />
+      <TrackList />
     </div>
   );
 };

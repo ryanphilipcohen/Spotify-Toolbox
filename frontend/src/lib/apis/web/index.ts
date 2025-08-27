@@ -140,3 +140,26 @@ export async function deleteTag(tag_id: number): Promise<any> {
   const data = await res.json();
   return data;
 }
+
+export async function getTrackCount(): Promise<number> {
+  const app_token = localStorage.getItem("app_access_token");
+  if (!app_token) throw new Error("You must log in to the app first.");
+
+  const res = await fetch(`http://localhost:8000/track/tracks/count`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${app_token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(
+      `Failed to fetch track count: ${error.detail || error.error}`
+    );
+  }
+
+  const data = await res.json();
+  return data.total_count;
+}

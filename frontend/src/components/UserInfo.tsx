@@ -20,10 +20,14 @@ export const UserInfo: React.FC<Props> = () => {
       if (!expired) {
         const data = await getUserData();
         setUserInfo(data);
+      } else {
+        setUserInfo(null);
       }
     };
 
     checkToken();
+    const interval = setInterval(checkToken, 10 * 60 * 1000); // 10 minutes
+    return () => clearInterval(interval);
   }, []);
 
   if (valid === null) {
@@ -36,7 +40,11 @@ export const UserInfo: React.FC<Props> = () => {
         userInfo ? (
           <div>
             <button className="flex items-center space-x-4">
-              <img className="w-8" src={userInfo?.images?.[0]?.url} />
+              <img
+                className="w-8"
+                src={userInfo?.images?.[0]?.url}
+                alt="Profile"
+              />
               <div>{userInfo?.display_name}</div>
             </button>
           </div>
