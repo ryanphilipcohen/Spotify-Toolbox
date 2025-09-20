@@ -86,10 +86,6 @@
   font-family: "Helvetica Neue", Arial, sans-serif;
 }
 
-.track-list__list > div {
-  padding-right: 5rem; /* Space for scrollbar */
-}
-
 .track-list__item {
   display: grid;
   grid-template-columns: 48px 1fr auto; /* image | info | duration */
