@@ -3,3 +3,4 @@
 .ignore
 **/__pycache__/
 database.sqlite3
+venv/
